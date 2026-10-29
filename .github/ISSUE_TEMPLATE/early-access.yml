@@ -1,0 +1,34 @@
+name: Request early access
+description: Ask for an invite to the Project ARES kit.
+title: "Early access: "
+labels: ["early-access"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for your interest in Project ARES. This issue is public, so share only what you are happy for anyone to read.
+        The invite goes to the GitHub account that opens this issue.
+  - type: textarea
+    id: building
+    attributes:
+      label: What are you building in UEFN?
+      description: A sentence or two about your island or your team's work.
+    validations:
+      required: true
+  - type: dropdown
+    id: experience
+    attributes:
+      label: How do you use Claude Code today?
+      options:
+        - Daily
+        - Sometimes
+        - Not yet
+    validations:
+      required: true
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: License
+      options:
+        - label: I have read the license summary on the site (free for my own islands, not for resale).
+          required: true

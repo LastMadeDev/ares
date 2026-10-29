@@ -1,0 +1,535 @@
+<!doctype html>
+<!--
+  Launch mode. One switch for the whole page:
+    data-mode="early-access"  the kit repo is private; CTAs open the access request form.
+    data-mode="open-source"   the kit repo is public; CTAs point at the clone and the repo.
+  Change it here; main.js reads it, and CSS shows only the [data-when] blocks for that mode.
+-->
+<html lang="en" data-mode="early-access">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Project ARES · The autonomous engineering system for UEFN</title>
+  <meta name="description" content="Project ARES turns Claude Code into a UEFN engineer. It knows Verse, wires devices, builds until green, and never calls work done without the compiler's proof.">
+  <meta name="theme-color" content="#0B0D12">
+  <link rel="icon" href="assets/ares-mark.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Project ARES · Autonomous Engineering System">
+  <meta property="og:description" content="Claude Code that ships UEFN islands, and proves it.">
+  <meta property="og:image" content="https://lastmadedev.github.io/ares/assets/ares-social-preview.png">
+  <meta property="og:url" content="https://lastmadedev.github.io/ares/">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Chakra+Petch:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>document.documentElement.classList.add("js")</script>
+</head>
+<body>
+  <canvas id="field" aria-hidden="true"></canvas>
+  <div class="noise" aria-hidden="true"></div>
+
+  <!-- ============ NAV ============ -->
+  <header class="nav" id="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="#top" aria-label="Project ARES home">
+        <img src="assets/ares-mark.svg" alt="" width="26" height="26">
+        <span>ARES</span>
+      </a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="#how">How it works</a>
+        <a href="#modes">Modes</a>
+        <a href="#arsenal">Arsenal</a>
+        <a href="#safety">Safety</a>
+        <a href="#license">License</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <div class="nav-cta">
+        <a class="btn btn-ghost btn-sm" data-link="repo" data-when="open-source" href="#">GitHub</a>
+        <a class="btn btn-primary btn-sm" data-link="primary" href="#">
+          <span data-when="early-access">Get early access</span>
+          <span data-when="open-source">Install</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- ============ HERO ============ -->
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div class="hero-copy">
+          <a class="pill reveal" href="#learning">
+            <span class="dot"></span>
+            <span>v3.0.17</span>
+            <span class="pill-sep"></span>
+            <span class="muted">163 releases in 35 days</span>
+            <span class="arrow">→</span>
+          </a>
+          <p class="kicker reveal">Autonomous Engineering System</p>
+          <h1 class="reveal">
+            Claude Code that ships UEFN islands.
+            <span class="grad">And proves it.</span>
+          </h1>
+          <p class="lede reveal">
+            Project ARES turns Claude Code into a Verse engineer that reads the compiler before it writes,
+            wires devices, builds until green and plays the result. It never says “done” without proof.
+          </p>
+          <div class="hero-ctas reveal">
+            <a class="btn btn-primary btn-lg" data-link="primary" href="#">
+              <span data-when="early-access">Request early access</span>
+              <span data-when="open-source">Install in one line</span>
+              <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8 3.5 12.5 8 8 12.5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+            </a>
+            <a class="btn btn-ghost btn-lg" href="#how">See how it works</a>
+          </div>
+          <p class="hero-meta reveal">Windows · Claude Code · UEFN MCP Toolsets · <span class="ok">Free for your own islands</span></p>
+        </div>
+
+        <div class="hero-art reveal" aria-hidden="true">
+          <div class="helm-glow"></div>
+          <img src="assets/ares-helm.jpg" alt="" class="helm">
+          <div class="orbit o1"></div>
+          <div class="orbit o2"></div>
+          <div class="chip c1"><span class="sdot ok"></span>verse_check · 0 errors</div>
+          <div class="chip c2"><span class="sdot ok"></span>[TEST] save.roundtrip PASS</div>
+          <div class="chip c3"><span class="sdot warn"></span>guard · 214 writes → split</div>
+        </div>
+      </div>
+
+      <!-- terminal -->
+      <div class="wrap">
+        <div class="term reveal" id="term">
+          <div class="term-bar">
+            <span class="tl r"></span><span class="tl y"></span><span class="tl g"></span>
+            <span class="term-title">claude · SellOresTycoon/Content</span>
+            <button class="term-replay" id="replay" type="button" aria-label="Replay the run">↻ replay</button>
+          </div>
+          <pre class="term-body" id="termBody" aria-label="An example /work run"></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ STATS ============ -->
+    <section class="stats wrap" aria-label="The kit in numbers">
+      <div class="stat reveal"><b data-count="46">46</b><span>skills, routed by the nouns in your prompt</span></div>
+      <div class="stat reveal"><b data-count="10">10</b><span>specialist agents that audit until clean</span></div>
+      <div class="stat reveal"><b data-count="24">24</b><span>slash commands from plan to handoff</span></div>
+      <div class="stat reveal"><b data-count="89">89</b><span>known errors with a one-line fix on recall</span></div>
+      <div class="stat reveal"><b data-count="364">364</b><span>lessons written back into the kit</span></div>
+      <div class="stat reveal"><b data-count="636">636</b><span>compiler test files indexed by error code</span></div>
+    </section>
+
+    <!-- ============ PROBLEM ============ -->
+    <section class="section" id="how">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <p class="eyebrow">The problem</p>
+          <h2>Language models have barely seen Verse.</h2>
+          <p class="sub">Out of the box, an agent guesses. In a UEFN island, a guess costs you a broken build, a frozen editor or a game thread that stalls in front of players.</p>
+        </div>
+        <div class="fails reveal">
+          <div class="fail"><s>Invents APIs that do not exist</s></div>
+          <div class="fail"><s>Writes code that never compiles</s></div>
+          <div class="fail"><s>Freezes the game thread</s></div>
+          <div class="fail"><s>Reports “done” anyway</s></div>
+        </div>
+
+        <div class="sec-head reveal" style="margin-top:96px">
+          <p class="eyebrow">The fix</p>
+          <h2>Three layers. Each one closes a gap.</h2>
+        </div>
+        <div class="layers">
+          <article class="card spot reveal">
+            <div class="card-ic">
+              <svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5zM4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/></svg>
+            </div>
+            <h3>Knowledge</h3>
+            <p>Laws, skills and a copy-then-rename shapes catalogue lifted from Verse that ships in live islands. The Book of Verse is mirrored offline, and every compiler error code is indexed against Epic’s own test files.</p>
+            <ul class="ticks"><li>46 skills on demand</li><li>Shapes that compile, one per construct</li><li>Digest lookup before any new API</li></ul>
+          </article>
+          <article class="card spot reveal">
+            <div class="card-ic">
+              <svg viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
+            </div>
+            <h3>Guarantees</h3>
+            <p>Hooks run on every edit, shell and MCP call. Rules ask; hooks enforce. The Stop gate holds every “done” up against the compiler’s real output since your last edit.</p>
+            <ul class="ticks"><li>verse-lint on every .verse save</li><li>Guard denies freezes and crashes</li><li>Known errors recalled with their fix</li></ul>
+          </article>
+          <article class="card spot reveal">
+            <div class="card-ic">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="18" r="2.5"/><circle cx="19" cy="18" r="2.5"/><path d="M12 7.5v4M12 11.5 6.5 16M12 11.5l5.5 4.5"/></svg>
+            </div>
+            <h3>Specialists</h3>
+            <p>Narrow agents audit concurrency, persistence, memory, UI wiring and in-island purchases. They share one output contract and loop until the verdict is CLEAN.</p>
+            <ul class="ticks"><li>10 agents, one contract</li><li>Fan out in parallel, fix one blocker at a time</li><li>Read-only auditors never edit</li></ul>
+          </article>
+        </div>
+
+        <!-- truth order -->
+        <div class="truth reveal">
+          <p class="eyebrow">Truth order, across every skill and agent</p>
+          <ol class="truth-row">
+            <li><b>Compiler digest</b><span>what your UEFN build says exists</span></li>
+            <li><b>Book of Verse</b><span>language semantics, offline</span></li>
+            <li><b>Your island</b><span>sibling code that already compiles</span></li>
+            <li><b>Kit samples</b><span>verified shapes and patterns</span></li>
+            <li class="last"><b>Model memory</b><span>last, never first</span></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PIPELINE ============ -->
+    <section class="section alt">
+      <div class="wrap pipe-grid">
+        <div class="sec-head left reveal">
+          <p class="eyebrow">The loop</p>
+          <h2>Every edit runs the gauntlet.</h2>
+          <p class="sub">The agent cannot end its turn on a red build. If no green build happened since the last edit, the Stop gate sends it back through <code>/build-check</code>: BuildAll, digest proof, log proof, lint.</p>
+          <p class="sub small">Compiles never means works. Behaviour is proven in a playtest with <code>[TEST]</code> and <code>[EVENT]</code> marks read straight from the log, or it lands on your test list.</p>
+        </div>
+        <div class="pipe reveal" aria-label="Pipeline: Prompt, Guard, verse-lint, Stop gate, build-check, Done">
+          <svg viewBox="0 0 520 420" class="pipe-svg">
+            <defs>
+              <linearGradient id="pg" x1="0" x2="1"><stop offset="0" stop-color="#D94B46" stop-opacity=".1"/><stop offset=".5" stop-color="#F16A63"/><stop offset="1" stop-color="#D94B46" stop-opacity=".1"/></linearGradient>
+            </defs>
+            <path id="flow" class="pipe-path" d="M60 60 H250 V160 H430 V260 H250 V360 H430"/>
+            <path class="pipe-loop" d="M250 260 C140 260 140 160 250 160"/>
+            <circle r="5" class="pulse"><animateMotion dur="5s" repeatCount="indefinite" rotate="auto"><mpath href="#flow"/></animateMotion></circle>
+            <circle r="5" class="pulse"><animateMotion dur="5s" begin="2.5s" repeatCount="indefinite"><mpath href="#flow"/></animateMotion></circle>
+          </svg>
+          <div class="node n1"><span class="nk">01</span>Prompt<small>rules + skills load on demand</small></div>
+          <div class="node n2"><span class="nk">02</span>Guard<small>denies only hangs, freezes, crashes</small></div>
+          <div class="node n3"><span class="nk">03</span>verse-lint<small>every .verse edit</small></div>
+          <div class="node n4 gate"><span class="nk">◆</span>Stop gate<small>green build since last edit?</small></div>
+          <div class="node n5"><span class="nk">05</span>/build-check<small>BuildAll + digest proof</small></div>
+          <div class="node n6 done"><span class="nk">✓</span>Done + handoff<small>commit · ticket · lesson</small></div>
+          <span class="loop-tag">no → rebuild</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ MODES ============ -->
+    <section class="section" id="modes">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <p class="eyebrow">Three modes</p>
+          <h2>You plan the next batch and test the last one.<br><span class="muted">The agents execute in between.</span></h2>
+        </div>
+        <div class="modes reveal">
+          <div class="tabs" role="tablist" aria-label="Modes">
+            <button role="tab" class="tab active" aria-selected="true" data-tab="plan"><span class="k">/plan-ticket</span>Plan</button>
+            <button role="tab" class="tab" aria-selected="false" data-tab="work"><span class="k">/work</span>Work</button>
+            <button role="tab" class="tab" aria-selected="false" data-tab="kit"><span class="k">kit-learn</span>Kit</button>
+          </div>
+          <div class="panes">
+            <div class="pane active" data-pane="plan" role="tabpanel">
+              <div class="pane-copy">
+                <h3>Interview until it is agent-ready.</h3>
+                <p>ARES investigates the island first, then interviews you in rounds until every section of the agent-ready template is filled. It splits the work into Linear tickets with blockers and parallel groups. Plan never executes.</p>
+                <ul class="ticks"><li>Question banks per system</li><li>Acceptance checks you can verify</li><li>Blockers and parallel groups mapped</li></ul>
+              </div>
+              <pre class="code"><span class="c-p">❯</span> /plan-ticket refinery upgrade tiers
+<span class="c-m">● Reading Content/Verse/CLAUDE.md, 6 systems</span>
+<span class="c-m">● Round 1 of 3</span>
+  1. Do tiers persist across sessions?
+  2. Which device signals a sale?
+  3. Cap per player, or per server?
+<span class="c-m">…</span>
+<span class="c-g">✓</span> Filed LM-142, LM-143, LM-144
+  LM-143 <span class="c-m">blocked by</span> LM-142
+  LM-144 <span class="c-m">parallel group</span> B</pre>
+            </div>
+            <div class="pane" data-pane="work" role="tabpanel">
+              <div class="pane-copy">
+                <h3>Execute to the end. No questions.</h3>
+                <p>One ticket, end to end: edits, Verse builds over MCP until green, assets, device placement, saves, playtest sessions, proof of every acceptance check, an island commit, a Linear report and kit lessons. <code>/work-long</code> does the same while you are away from the PC.</p>
+                <ul class="ticks"><li><code>work.ps1</code> runs one session per ticket in parallel</li><li><code>editor-lock.ps1</code> keeps them off one UEFN at a time</li><li>Ambiguity is decided toward the goal and recorded</li></ul>
+              </div>
+              <pre class="code"><span class="c-p">❯</span> work.ps1 LM-142 LM-144 LM-151
+<span class="c-m">● board.ps1: 3 sessions, 1 editor</span>
+  LM-142 <span class="c-r">▮▮▮▮▮▮▮▮</span>▯▯ build-check
+  LM-144 <span class="c-r">▮▮▮▮▮</span>▯▯▯▯▯ waiting on editor-lock
+  LM-151 <span class="c-r">▮▮▮▮▮▮▮▮▮▮</span> <span class="c-g">In Review</span>
+<span class="c-g">✓</span> 3 of 3 proven · 0 asked you anything</pre>
+            </div>
+            <div class="pane" data-pane="kit" role="tabpanel">
+              <div class="pane-copy">
+                <h3>Every agent makes the next one sharper.</h3>
+                <p>When a fix costs real time, the agent writes the lesson into the kit: search first, sharpen before adding, one fact per file. <code>kit.ps1 ship</code> commits, rebases, fast-checks and pushes. CI runs the full suite, and every machine pulls it at session start.</p>
+                <ul class="ticks"><li>Budgets keep always-on context under 8 KB</li><li>Every Verse code fence linted in CI</li><li>Rules that stop firing get retired weekly</li></ul>
+              </div>
+              <pre class="code"><span class="c-p">❯</span> kit-learn
+<span class="c-m">● Lesson: USER_CONTROL is input in the last 10 s</span>
+<span class="c-m">● Search: 2 near matches, sharpen known-errors.json</span>
+<span class="c-g">✓</span> kit.ps1 check   budgets ok · lint ok · hooks 100%
+<span class="c-g">✓</span> kit.ps1 ship    Release v3.0.17 → main
+<span class="c-m">● Next session on every PC: synced</span></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ARSENAL (bento) ============ -->
+    <section class="section alt" id="arsenal">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <p class="eyebrow">The arsenal</p>
+          <h2>Not just Verse. The whole island.</h2>
+          <p class="sub">Devices, UI, materials, VFX, cinematics, lighting, props, sound and the trailer. Each one is a skill with recipes that were proven in a live island first.</p>
+        </div>
+        <div class="bento">
+          <article class="bx bx-wide spot reveal">
+            <h3>Specialist agents</h3>
+            <p>Read-only auditors and helpers with one contract. Fan them out, fix one blocker at a time, loop until CLEAN.</p>
+            <div class="agents">
+              <span>verse-reviewer</span><span>verse-concurrency</span><span>verse-gc-data</span><span>verse-persistence</span><span>verse-debugger</span><span>verse-architect</span><span>verse-investigator</span><span>uefn-ui-wrapper</span><span>igp-auditor</span><span>blender-art-director</span>
+            </div>
+          </article>
+          <article class="bx spot reveal">
+            <h3>Editor over MCP</h3>
+            <p>Place and wire devices, set <code>@editable</code>s in batches of up to ~200 writes, save, read back. Recovery when UEFN hangs.</p>
+          </article>
+          <article class="bx spot reveal">
+            <h3>UI from a mockup</h3>
+            <p>Mockup, WBP, MVVM bindings, Verse wrapper, animation. Layout checks before you ever open the widget.</p>
+          </article>
+          <article class="bx bx-img spot reveal">
+            <img src="assets/ares-orchestration.jpg" alt="Abstract diagram: one agent node dispatching work cards that converge on an island" loading="lazy">
+            <div class="bx-cap"><h3>3D pipeline</h3><p>Blender props through a render and art-direction loop, measured to fit placed actors, exported with the exact import settings.</p></div>
+          </article>
+          <article class="bx spot reveal">
+            <h3>Performance</h3>
+            <p>Profile the server tick, attribute the cost, fix with the playbook, prove it on the same tour.</p>
+          </article>
+          <article class="bx spot reveal">
+            <h3>World and VFX</h3>
+            <p>Level layout and spawns, materials, Niagara, lighting and cutscenes, each with the cost measured before it ships.</p>
+          </article>
+          <article class="bx spot reveal">
+            <h3>Media</h3>
+            <p>Concept art, game SFX auditioned by ear, clips and the Discover trailer cut from your recordings.</p>
+          </article>
+        </div>
+
+        <!-- skills explorer -->
+        <div class="skills reveal" id="skills">
+          <div class="skills-head">
+            <h3>46 skills, loaded only when your prompt needs them.</h3>
+            <div class="chips" role="group" aria-label="Filter skills by domain" id="skillChips"></div>
+          </div>
+          <div class="skill-grid" id="skillGrid"></div>
+          <button class="btn btn-ghost more" id="skillMore" type="button" hidden>Show all skills</button>
+          <p class="note">A noun-based router picks skills from your prompt. It scores 74/74 on its eval (27/74 before).</p>
+        </div>
+
+        <!-- command palette -->
+        <div class="palette reveal" id="commands">
+          <div class="palette-copy">
+            <p class="eyebrow">24 commands</p>
+            <h3>From an idea to a handoff, one slash at a time.</h3>
+            <p class="sub small">Try it. Press <kbd>/</kbd> to search.</p>
+          </div>
+          <div class="pal">
+            <div class="pal-search">
+              <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m13.5 13.5 4 4" stroke="currentColor" stroke-width="1.6"/></svg>
+              <input id="palInput" type="text" placeholder="Search commands…" aria-label="Search commands" autocomplete="off" spellcheck="false">
+              <kbd>/</kbd>
+            </div>
+            <ul class="pal-list" id="palList" role="listbox" aria-label="Commands"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ LEARNING ============ -->
+    <section class="section" id="learning">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <p class="eyebrow">Keeping it true</p>
+          <h2>It learns from its own mistakes.</h2>
+          <p class="sub">Failed tool calls, Verse errors, audit findings, art-director rejections and your corrections land in a lesson ledger. A known mistake gets its one-line fix injected the moment it recurs.</p>
+        </div>
+        <div class="loop reveal">
+          <div class="loop-step"><span class="ls-n">1</span><b>Mistake</b><p>A build error, a crashed batch, a correction from you.</p></div>
+          <div class="loop-arrow" aria-hidden="true"></div>
+          <div class="loop-step"><span class="ls-n">2</span><b>Ledger</b><p>Logged per project with the fix that worked.</p></div>
+          <div class="loop-arrow" aria-hidden="true"></div>
+          <div class="loop-step"><span class="ls-n">3</span><b>Recall</b><p>Seen again? The fix is injected before the retry.</p></div>
+          <div class="loop-arrow" aria-hidden="true"></div>
+          <div class="loop-step"><span class="ls-n">4</span><b>Rule</b><p>Made twice? It becomes one sharper rule, shipped to every machine.</p></div>
+        </div>
+        <div class="ship reveal">
+          <div class="ship-col">
+            <b class="big" data-count="579">579</b><span>commits since 25 Sep 2026</span>
+          </div>
+          <div class="ship-col">
+            <b class="big" data-count="163">163</b><span>releases, each one checked in CI</span>
+          </div>
+          <div class="ship-col">
+            <b class="big" data-count="55">55</b><span>logged decisions, each with the lesson behind it</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SAFETY ============ -->
+    <section class="section alt" id="safety">
+      <div class="wrap safety-grid">
+        <div class="safety-art reveal">
+          <img src="assets/ares-shield.jpg" alt="Abstract shield with a check mark, wired to four status pills" loading="lazy">
+        </div>
+        <div class="safety-copy">
+          <div class="sec-head left reveal">
+            <p class="eyebrow">Safety</p>
+            <h2>Full autonomy, with hard edges.</h2>
+            <p class="sub">The guard denies only what would hang, freeze or crash a run. Everything else is allowed, and hooks never ask. Account-safety lines are skipped around, never crossed.</p>
+          </div>
+          <div class="guard reveal">
+            <div class="g-row"><span class="sdot bad"></span><code>mcp_auth</code><span>hangs the session</span></div>
+            <div class="g-row"><span class="sdot bad"></span><code>reload from disk</code><span>freezes UEFN for minutes</span></div>
+            <div class="g-row"><span class="sdot bad"></span><code>&gt; 200 writes / call</code><span>split into chunks, then save</span></div>
+            <div class="g-row"><span class="sdot bad"></span><code>save_assets([])</code><span>saves every session’s dirty packages</span></div>
+            <div class="g-row"><span class="sdot warn"></span><code>3× same failure</code><span>the 4th identical call is denied</span></div>
+          </div>
+          <div class="never reveal">
+            <h3>Epic account-safety lines it never crosses</h3>
+            <ul>
+              <li><b>Machine and account.</b> No input automation on the game client, no anti-cheat, no reading or injecting into Epic processes, no asset extraction, no private endpoints, no alt accounts.</li>
+              <li><b>Island content.</b> No gambling shapes, no links or calls to action outside the game, no misleading metadata, no exploits, no copied islands or unlicensed IP.</li>
+              <li><b>Who does what.</b> You own publishing, the Creator Portal, ratings answers, payouts and team invites. Agents may draft; you submit.</li>
+            </ul>
+          </div>
+          <p class="privacy reveal"><span class="sdot ok"></span><b>Private by default.</b> Hooks and tools run locally and never send your island anywhere. The only network traffic is the kit syncing itself.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ QUICK START ============ -->
+    <section class="section" id="start">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <p class="eyebrow">Quick start</p>
+          <h2>Four commands. Every island on every machine.</h2>
+          <p class="sub">One install puts ARES in <code>~/.claude</code>. Updates are <code>git pull</code> and the installer again; anything you edited by hand is backed up.</p>
+        </div>
+        <div class="start reveal">
+          <div class="code-card">
+            <div class="code-bar"><span>PowerShell</span><button class="copy" type="button" data-copy="install">Copy</button></div>
+            <pre class="code" id="install"><span class="c-m"># clone to this exact path; the commands expect it</span>
+git clone <span class="c-s" data-clone>https://github.com/LastMadeDev/Project-ARES.git</span> "$env:USERPROFILE\Documents\UEFNCLAW"
+cd "$env:USERPROFILE\Documents\UEFNCLAW"
+powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
+claude mcp add --transport http --scope user unreal-mcp http://127.0.0.1:8000/mcp</pre>
+          </div>
+          <ol class="steps">
+            <li><b>Turn on MCP Toolsets</b><span>Project Settings → Beta Access, once per project.</span></li>
+            <li><b>Build Verse once</b><span>So the compiler digests exist.</span></li>
+            <li><b>Start Claude Code in Content\</b><span>With the digests attached via <code>--add-dir</code>.</span></li>
+            <li><b>Run <code>/project-sync</code></b><span>Maps your Verse and seeds island config.</span></li>
+          </ol>
+        </div>
+        <p class="req reveal" data-when="early-access"><span class="sdot warn" style="display:inline-block;margin-right:8px"></span>Early access: the repository is private for now. Once your request is approved you get an invite, and the clone above works after you accept it.</p>
+        <p class="req reveal">Requires Windows 10 or 11, Git, Claude Code, Python 3 and UEFN with MCP Toolsets enabled. Linear is optional, for plan and work modes.</p>
+      </div>
+    </section>
+
+    <!-- ============ LICENSE / PRICING ============ -->
+    <section class="section alt" id="license">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <p class="eyebrow">License</p>
+          <h2>Free to build with. Not for resale.</h2>
+          <p class="sub">Business Source License 1.1. Each version converts to Apache 2.0 four years after it is published.</p>
+        </div>
+        <div class="tiers">
+          <article class="tier spot reveal">
+            <h3>Creators</h3>
+            <p class="price">$0</p>
+            <p class="tier-sub">For your own islands, including islands that earn money.</p>
+            <ul class="ticks">
+              <li>The full kit: rules, skills, agents, hooks, tools</li>
+              <li>Ship the Verse samples inside your islands</li>
+              <li>The Verse you write with it is yours</li>
+              <li>Updates through <code>git pull</code></li>
+            </ul>
+            <a class="btn btn-primary" data-link="primary" href="#">
+              <span data-when="early-access">Request early access</span>
+              <span data-when="open-source">Install</span>
+            </a>
+          </article>
+          <article class="tier tier-alt spot reveal">
+            <h3>Commercial</h3>
+            <p class="price">Talk to us</p>
+            <p class="tier-sub">For anyone who wants to offer ARES, or something built from it, to others.</p>
+            <ul class="ticks">
+              <li>Selling the kit or a derivative</li>
+              <li>Bundling it into a paid course or product</li>
+              <li>Hosting it as a service</li>
+              <li>Studio-wide arrangements</li>
+            </ul>
+            <a class="btn btn-ghost" data-link="commercial" href="#">Ask about a commercial license</a>
+          </article>
+        </div>
+        <p class="note center reveal">The Book of Verse chapters bundled with the kit are CC0 and not covered by this license.</p>
+      </div>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section class="section" id="faq">
+      <div class="wrap faq-wrap">
+        <div class="sec-head left reveal">
+          <p class="eyebrow">FAQ</p>
+          <h2>Questions, answered straight.</h2>
+        </div>
+        <div class="faq reveal">
+          <details><summary>Is ARES made by or affiliated with Epic Games or Anthropic?</summary><p>No. Project ARES is an independent project by LastMade. It is not sponsored, endorsed, or administered by Epic Games, Inc., and it is not affiliated with Anthropic.</p></details>
+          <details><summary>Does it play Fortnite for me?</summary><p>No. ARES drives the UEFN editor over Epic’s MCP Toolsets and reads the editor log. It never automates input on the game client and never touches anti-cheat or Epic processes. Playing your island is your job, and <code>/test-pass</code> turns it into one checklist.</p></details>
+          <details><summary>Does my island leave my machine?</summary><p>No. Hooks and tools run locally. The kit syncs itself with its own repo at session start (you can turn that off), and Claude Code talks to Anthropic as it always does.</p></details>
+          <details><summary>Will it publish my island or touch my Creator Portal?</summary><p>Never. Publishing, the Creator Portal, ratings answers, payouts and team invites stay with you. Agents may draft text for them; you submit it.</p></details>
+          <details><summary>Why Windows only?</summary><p>UEFN runs on Windows, and the hooks and tools are PowerShell and Python built around it.</p></details>
+          <details><summary>What does “proves it” actually mean?</summary><p>A change is not done until the compiler’s digest shows a green build since the last edit, and behaviour is either proven by <code>[TEST]</code> marks in a playtest log or put on your test list by name. The Stop gate checks the first part on every turn.</p></details>
+          <details><summary>Can I sell islands built with it?</summary><p>Yes. Islands you build with ARES are yours, including ones that earn money. What needs a commercial license is reselling ARES itself.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FINAL CTA ============ -->
+    <section class="final">
+      <div class="wrap final-inner reveal">
+        <img src="assets/ares-mark.svg" alt="" width="72" height="72" class="final-mark">
+        <h2>Stop babysitting the agent.<br><span class="grad">Start shipping the island.</span></h2>
+        <div class="hero-ctas center">
+          <a class="btn btn-primary btn-lg" data-link="primary" href="#">
+            <span data-when="early-access">Request early access</span>
+            <span data-when="open-source">Install ARES</span>
+          </a>
+          <a class="btn btn-ghost btn-lg" href="#start">Read the quick start</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap foot-inner">
+      <div class="foot-brand">
+        <a class="brand" href="#top"><img src="assets/ares-mark.svg" alt="" width="22" height="22"><span>ARES</span></a>
+        <p>Autonomous Engineering System. Built and maintained by LastMade.</p>
+      </div>
+      <div class="foot-links">
+        <a href="#how">How it works</a><a href="#modes">Modes</a><a href="#arsenal">Arsenal</a><a href="#safety">Safety</a><a href="#license">License</a><a href="#faq">FAQ</a>
+      </div>
+    </div>
+    <div class="wrap legal">
+      <p>This is not sponsored, endorsed, or administered by Epic Games, Inc.</p>
+      <p>Project ARES is an independent project and is not affiliated with, endorsed by, or sponsored by Epic Games, Inc. or Anthropic. Unreal Editor for Fortnite, UEFN, Fortnite and Verse are trademarks of Epic Games, Inc. Claude and Claude Code are trademarks of Anthropic.</p>
+      <p>© 2026 LastMade.</p>
+    </div>
+  </footer>
+
+  <script src="main.js" defer></script>
+</body>
+</html>

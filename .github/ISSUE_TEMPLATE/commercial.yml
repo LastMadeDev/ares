@@ -1,0 +1,16 @@
+name: Commercial license
+description: Ask about offering Project ARES, or something built from it, to others.
+title: "Commercial license: "
+labels: ["commercial"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This issue is public. Describe the use case only; LastMade will reply here to continue the conversation.
+  - type: textarea
+    id: use
+    attributes:
+      label: What do you want to do with ARES?
+      description: For example a paid course, a bundled product, a hosted service, or a studio-wide arrangement.
+    validations:
+      required: true
